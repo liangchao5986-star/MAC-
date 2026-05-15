@@ -1,0 +1,38 @@
+name: Build Mac App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          brew install python-tk
+          python -m pip install --upgrade pip
+          pip install py2app pandas numpy matplotlib openpyxl python-docx
+
+      - name: Build app
+        run: |
+          python setup.py py2app --strip
+
+      - name: Zip app
+        run: |
+          cd dist
+          zip -r "部门业务机会分析.app.zip" "部门业务机会分析.app"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-app
+          path: dist/部门业务机会分析.app.zip
